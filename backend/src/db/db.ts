@@ -14,11 +14,5 @@ const accountSchema = new mongoose.Schema({
     balance:{type: Number , require: true}
 })
 
-const AccountModel = mongoose.model("Account", accountSchema);
-
-
+export const AccountModel = mongoose.model("Account", accountSchema);
 export const UserModel = mongoose.model("User", userSchema);
-
-module.exports = { 
-    AccountModel
-}

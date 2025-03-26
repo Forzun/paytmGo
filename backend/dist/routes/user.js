@@ -41,6 +41,11 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
         firstName: firstName,
         lastName: lastName
     });
+    const userId = user._id;
+    yield db_1.AccountModel.create({
+        userId: userId,
+        balance: 1 + Math.random() * 10000
+    });
     if (user) {
         res.status(200).json({
             result: user,

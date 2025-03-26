@@ -2,7 +2,7 @@ import express from "express";
 import { z } from "zod"; 
 import jwt from "jsonwebtoken"
 import { Router } from "express"; 
-import {UserModel} from "../db/db"
+import {AccountModel, UserModel} from "../db/db"
 import { userMiddleware } from "../middleware/auth";
 
 const router: Router = Router();
@@ -33,6 +33,13 @@ router.post("/signup", async(req ,res) => {
         password: password, 
         firstName: firstName, 
         lastName: lastName
+    })
+
+    const userId = user._id; 
+
+    await AccountModel.create({ 
+        userId:userId, 
+        balance:1 + Math.random() * 10000
     })
     
     if(user){ 
