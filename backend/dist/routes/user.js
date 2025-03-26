@@ -16,6 +16,7 @@ const zod_1 = require("zod");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const express_1 = require("express");
 const db_1 = require("../db/db");
+const auth_1 = require("../middleware/auth");
 const router = (0, express_1.Router)();
 const userSchema = zod_1.z.object({
     username: zod_1.z.string().email(),
@@ -70,5 +71,34 @@ router.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function*
             message: "error while signin user"
         });
     }
+}));
+router.put("/", auth_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    //@ts-ignore
+    const user = yield db_1.UserModel.updateOne({ _id: req.userId }, req.body);
+    if (user) {
+        res.status(200).json({
+            result: "user updated sucessfully",
+        });
+    }
+    else {
+        res.json({
+            message: "Error while updating user"
+        });
+    }
+}));
+router.get("/bulk", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const filter = req.query.filter || "";
+    const users = yield db_1.UserModel.find({
+        $or: [{
+                firstName: {
+                    "$regex": filter
+                }
+            }, {
+                lastName: {
+                    "$regex": filter
+                }
+            }]
+    });
+    console.log(users);
 }));
 exports.default = router;

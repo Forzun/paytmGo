@@ -3,6 +3,7 @@ import { z } from "zod";
 import jwt from "jsonwebtoken"
 import { Router } from "express"; 
 import {UserModel} from "../db/db"
+import { userMiddleware } from "../middleware/auth";
 
 const router: Router = Router();
 
@@ -66,10 +67,43 @@ router.post("/signin", async(req ,res) => {
             message:"error while signin user"
         })
     }
-
-
 })
 
+router.put("/", userMiddleware , async(req ,res) => {
+
+    //@ts-ignore
+    const user = await UserModel.updateOne({_id: req.userId}, req.body)
+
+    if(user){ 
+        res.status(200).json({ 
+            result:"user updated sucessfully",
+        })
+    }else{ 
+        res.json({ 
+            message:"Error while updating user"
+        })
+    }
+})
+
+router.get("/bulk", async(req ,res) => {
+    const filter = req.query.filter || ""; 
+
+    const users = await UserModel.find({ 
+        $or:[{ 
+            firstName:{
+                "$regex":filter
+            }
+        }, { 
+            lastName:{ 
+                "$regex":filter
+            }
+        }]
+    })
+
+    console.log(users)
+})
+
+
+
+
 export default router;
-
-
