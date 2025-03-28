@@ -42,6 +42,9 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
         lastName: lastName
     });
     const userId = user._id;
+    const token = jsonwebtoken_1.default.sign({
+        userId: userId
+    }, "SECRET");
     yield db_1.AccountModel.create({
         userId: userId,
         balance: 1 + Math.random() * 10000
@@ -49,6 +52,7 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
     if (user) {
         res.status(200).json({
             result: user,
+            token: token,
         });
     }
     else {
@@ -93,7 +97,7 @@ router.put("/", auth_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, v
 }));
 router.get("/bulk", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const filter = req.query.filter || "";
-    const users = yield db_1.UserModel.find({
+    const user = yield db_1.UserModel.find({
         $or: [{
                 firstName: {
                     "$regex": filter
@@ -104,6 +108,8 @@ router.get("/bulk", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 }
             }]
     });
-    console.log(users);
+    res.status(200).json({
+        user: user
+    });
 }));
 exports.default = router;
