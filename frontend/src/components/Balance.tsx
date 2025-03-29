@@ -1,6 +1,6 @@
 
 interface BalanceProps { 
-    value: string;
+    value: number;
 }
 
 export const Balance = ({value} : BalanceProps) => { 

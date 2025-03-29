@@ -1,5 +1,8 @@
-import { useReducer, useState } from "react"
+import { useEffect, useReducer, useState } from "react"
 import { Button } from "./Button";
+import axios from "axios"
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 interface UserProps { 
         firstName: string; 
@@ -8,26 +11,34 @@ interface UserProps {
 }
 
 export const Users = () => { 
-    const [users, setUsers] = useState([{
-        firstName: "Harkirat",
-        lastName: "Singh",
-        _id: 1
-    }]);
+    const [users, setUsers] = useState([]);
+    const [filter , setFilter] = useState("");
+    const token = localStorage.getItem("token")
+    const decoded = jwtDecode(token);
 
-    return <>
+
+    useEffect(() => { 
+        axios.get("http://localhost:3000/api/v1/user/bulk?filter="+filter)
+            .then(response => { 
+                setUsers(response.data.user);
+            })
+    }, [filter])
+    return <>s
         <div className="font-bold mt-6 text-lg">
             Users
         </div>
         <div className="my-2">
-            <input type="text" placeholder="Search users..." className="w-full px-2 py-1 border rounded border-slate-200"></input>
+            <input onChange={(e) => setFilter(e.target.value)} type="text" placeholder="Search users..." className="w-full px-2 py-1 border rounded border-slate-200"></input>
         </div>
         <div>
-            {users.map(user => <User user={user} />)}
+            {users.filter(value => value._id !== decoded.userId).map(user => <User key={Math.random()} user={user} />)}
         </div>
     </>
 }
 
-function User({user}) {
+function User({user} : any) {
+    const navigate = useNavigate();
+
     return <div className="flex justify-between">
         <div className="flex">
             <div className="rounded-full h-12 w-12 bg-slate-200 flex justify-center mt-1 mr-2">
@@ -42,8 +53,10 @@ function User({user}) {
             </div>
         </div>
 
-        <div className="flex flex-col justify-center h-ful">
-            <Button label={"Send Money"} />
+        <div className="flex flex-col justify-center h-full">
+            <Button
+                onClick={() => navigate("/send?id="+user._id + "&name=" + user.firstName)}
+            label={"Send Money"} />
         </div>
     </div>
 }
